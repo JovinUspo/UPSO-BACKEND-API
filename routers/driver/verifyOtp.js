@@ -75,8 +75,8 @@ router.post("/verify-otp", async (req, res) => {
     success: true,
     message: "OTP verified successfully",
     data: {
-      userId: driver.id,
-      userName: driver.userName,
+      driverId: driver.id,
+      driverName: driver.userName,
       accessToken,
       refreshToken,
     },
