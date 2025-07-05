@@ -1,10 +1,13 @@
 [
   {
     "id": "tammy-driver-001",
-    "name": "Tammy R",
+    "userName": "Tammy R",
     "dob": "1992-04-18",
     "mobile": "9876512345",
     "gender": "Female",
+    "drivingLicenseNo": "TN0123456789",
+    "accountNo": "998877665544",
+    "ifscCode": "ICIC0009876",
     "address": {
       "apartment": "Block B5",
       "street": "MG Road",
