@@ -1,0 +1,27 @@
+[
+  {
+    "id": "8e313cbd-8b2f-4160-9c88-1d09999b464a",
+    "name": "Jovin J",
+    "dob": "1999-06-12",
+    "mobile": "9876543210",
+    "gender": "Male",
+    "address": {
+      "apartment": "Flat 202",
+      "street": "Anna Nagar",
+      "landmark": "Near Park",
+      "pincode": "600001"
+    },
+    "submittedAt": "2025-07-04T13:38:19.010Z",
+    "bankDetails": {
+      "accountName": "Jovin J",
+      "accountNumber": "123456789012",
+      "ifscCode": "HDFC0001234",
+      "documents": {
+        "bank": "/uploads/bankDocs/bankDocument-1751636387477.jpg",
+        "residence": "/uploads/residenceDocs/residenceProof-1751636387478.jpg",
+        "license": "/uploads/licenseDocs/drivingLicense-1751636387478.jpg"
+      },
+      "submittedAt": "2025-07-04T13:39:47.498Z"
+    }
+  }
+]

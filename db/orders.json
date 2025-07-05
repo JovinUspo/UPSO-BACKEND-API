@@ -1,0 +1,39 @@
+[
+  {
+    "orderId": "122339876Z",
+    "driverId": "44707285-f3c9-4f93-bf72-7d425a16ba6d",
+    "distanceKm": 3,
+    "amount": 500,
+    "status": "delivered",
+    "products": [
+      "Jeans",
+      "Trousers",
+      "Trackpants",
+      "Tracksuit",
+      "Surgery pants"
+    ],
+    "respondedAt": "2025-07-02T14:03:06.668Z",
+    "shopName": "Grocery Hub",
+    "shopAddress": "5th Street, Chennai",
+    "pickupLatitude": 13.0827,
+    "pickupLongitude": 80.2707,
+    "pickupReachedAt": "2025-07-04T06:08:37.082Z",
+    "collectedItems": [
+      "Jeans",
+      "Trousers",
+      "Tracksuit",
+      "Trackpants",
+      "Surgery pants"
+    ],
+    "itemsCollectedAt": "2025-07-04T06:55:03.745Z",
+    "customerName": "Jovin",
+    "customerPhoneNo": "0987654321",
+    "deliveryAddress": "Thiruvanmiyur, Chennai",
+    "deliveryLatitude": 13.08,
+    "deliveryLongitude": 88.6666,
+    "deliveryReachedAt": "2025-07-04T07:28:23.759Z",
+    "paymentMode": "cash",
+    "cashToCollect": 500,
+    "deliveredAt": "2025-07-04T07:48:35.259Z"
+  }
+]
