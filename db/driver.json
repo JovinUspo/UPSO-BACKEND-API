@@ -1,27 +1,25 @@
-[
-  {
-    "id": "8e313cbd-8b2f-4160-9c88-1d09999b464a",
-    "name": "Jovin J",
-    "dob": "1999-06-12",
-    "mobile": "9876543210",
-    "gender": "Male",
-    "address": {
-      "apartment": "Flat 202",
-      "street": "Anna Nagar",
-      "landmark": "Near Park",
-      "pincode": "600001"
+{
+  "id": "tammy-driver-001",
+  "name": "Tammy R",
+  "dob": "1992-04-18",
+  "mobile": "9876512345",
+  "gender": "Female",
+  "address": {
+    "apartment": "Block B5",
+    "street": "MG Road",
+    "landmark": "Near Metro",
+    "pincode": "600020"
+  },
+  "submittedAt": "2025-07-05T08:00:00.000Z",
+  "bankDetails": {
+    "accountName": "Tammy R",
+    "accountNumber": "998877665544",
+    "ifscCode": "ICIC0009876",
+    "documents": {
+      "bank": "/uploads/bankDocs/bankDocument-tammy.jpg",
+      "residence": "/uploads/residenceDocs/residenceProof-tammy.jpg",
+      "license": "/uploads/licenseDocs/drivingLicense-tammy.jpg"
     },
-    "submittedAt": "2025-07-04T13:38:19.010Z",
-    "bankDetails": {
-      "accountName": "Jovin J",
-      "accountNumber": "123456789012",
-      "ifscCode": "HDFC0001234",
-      "documents": {
-        "bank": "/uploads/bankDocs/bankDocument-1751636387477.jpg",
-        "residence": "/uploads/residenceDocs/residenceProof-1751636387478.jpg",
-        "license": "/uploads/licenseDocs/drivingLicense-1751636387478.jpg"
-      },
-      "submittedAt": "2025-07-04T13:39:47.498Z"
-    }
+    "submittedAt": "2025-07-05T08:30:00.000Z"
   }
-]
+}
