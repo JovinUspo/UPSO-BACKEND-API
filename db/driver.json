@@ -1,25 +1,27 @@
-{
-  "id": "tammy-driver-001",
-  "name": "Tammy R",
-  "dob": "1992-04-18",
-  "mobile": "9876512345",
-  "gender": "Female",
-  "address": {
-    "apartment": "Block B5",
-    "street": "MG Road",
-    "landmark": "Near Metro",
-    "pincode": "600020"
-  },
-  "submittedAt": "2025-07-05T08:00:00.000Z",
-  "bankDetails": {
-    "accountName": "Tammy R",
-    "accountNumber": "998877665544",
-    "ifscCode": "ICIC0009876",
-    "documents": {
-      "bank": "/uploads/bankDocs/bankDocument-tammy.jpg",
-      "residence": "/uploads/residenceDocs/residenceProof-tammy.jpg",
-      "license": "/uploads/licenseDocs/drivingLicense-tammy.jpg"
+[
+  {
+    "id": "tammy-driver-001",
+    "name": "Tammy R",
+    "dob": "1992-04-18",
+    "mobile": "9876512345",
+    "gender": "Female",
+    "address": {
+      "apartment": "Block B5",
+      "street": "MG Road",
+      "landmark": "Near Metro",
+      "pincode": "600020"
     },
-    "submittedAt": "2025-07-05T08:30:00.000Z"
+    "submittedAt": "2025-07-05T08:00:00.000Z",
+    "bankDetails": {
+      "accountName": "Tammy R",
+      "accountNumber": "998877665544",
+      "ifscCode": "ICIC0009876",
+      "documents": {
+        "bank": "/uploads/bankDocs/bankDocument-tammy.jpg",
+        "residence": "/uploads/residenceDocs/residenceProof-tammy.jpg",
+        "license": "/uploads/licenseDocs/drivingLicense-tammy.jpg"
+      },
+      "submittedAt": "2025-07-05T08:30:00.000Z"
+    }
   }
-}
+]
