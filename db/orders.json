@@ -7,7 +7,24 @@
     "status": "pending",
     "distanceKm": 7.5,
     "amount": 120,
-    "requestedAt": "2025-07-05T09:00:00.000Z"
+    "requestedAt": "2025-07-05T09:00:00.000Z",
+    "products": [
+      {
+        "productId": "p1",
+        "name": "Milk (1L)",
+        "quantity": 2
+      },
+      {
+        "productId": "p2",
+        "name": "Bread",
+        "quantity": 1
+      },
+      {
+        "productId": "p3",
+        "name": "Eggs (6 Pack)",
+        "quantity": 1
+      }
+    ]
   },
   {
     "orderId": "order-jovin-001",
@@ -17,6 +34,18 @@
     "status": "accepted",
     "distanceKm": 15,
     "amount": 220,
-    "requestedAt": "2025-07-04T12:00:00.000Z"
+    "requestedAt": "2025-07-04T12:00:00.000Z",
+    "products": [
+      {
+        "productId": "p10",
+        "name": "Rice (5kg)",
+        "quantity": 1
+      },
+      {
+        "productId": "p11",
+        "name": "Cooking Oil (1L)",
+        "quantity": 2
+      }
+    ]
   }
 ]
