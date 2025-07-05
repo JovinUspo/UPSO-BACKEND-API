@@ -4,7 +4,7 @@
     "driverId": "tammy-driver-001",
     "pickupLocation": "Chennai Central",
     "dropLocation": "T Nagar",
-    "status": "pending",
+    "status": "items_collected",
     "distanceKm": 7.5,
     "amount": 120,
     "requestedAt": "2025-07-05T09:00:00.000Z",
@@ -18,13 +18,15 @@
         "productId": "p2",
         "name": "Bread",
         "quantity": 1
-      },
-      {
-        "productId": "p3",
-        "name": "Eggs (6 Pack)",
-        "quantity": 1
       }
-    ]
+    ],
+    "collectedItems": ["p1", "p2"],
+    "itemsCollectedAt": "2025-07-05T13:20:45.000Z",
+    "customerName": "Anjali R",
+    "customerPhoneNo": "9876098760",
+    "deliveryAddress": "12, Bajanai Koil Street, T Nagar, Chennai",
+    "deliveryLatitude": 13.0405,
+    "deliveryLongitude": 80.2337
   },
   {
     "orderId": "order-jovin-001",
@@ -46,6 +48,11 @@
         "name": "Cooking Oil (1L)",
         "quantity": 2
       }
-    ]
+    ],
+    "customerName": "Rahul D",
+    "customerPhoneNo": "9845012345",
+    "deliveryAddress": "42, 3rd Main Road, Velachery, Chennai",
+    "deliveryLatitude": 12.9781,
+    "deliveryLongitude": 80.2183
   }
 ]
