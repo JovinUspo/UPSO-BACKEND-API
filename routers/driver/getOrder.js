@@ -14,7 +14,7 @@ router.get("/order/pending/:driverId", authToken, async (req, res) => {
     const newOrder = await Order.findOne({
       driverId,
       status: "pending",
-    }).select("orderId distanceKm amount -_id");
+    }).select("orderId distanceKm amount - id");
 
     if (!newOrder) {
       return res.status(404).json({
