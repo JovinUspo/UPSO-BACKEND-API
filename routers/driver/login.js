@@ -1,69 +1,66 @@
 const express = require("express");
 const router = express.Router();
-const path = require("path");
-const fs = require("fs").promises;
 const crypto = require("crypto");
+const Driver = require("../../models/Driver");
 
-const DRIVER_DB = path.join(__dirname, "../../db/driver.json");
-
-// Utility: Read driver list from JSON DB
-const readDrivers = async () => JSON.parse(await fs.readFile(DRIVER_DB, "utf8"));
-
-// Utility: Write driver list to JSON DB
-const writeDrivers = async (data) =>
-  await fs.writeFile(DRIVER_DB, JSON.stringify(data, null, 2));
-
-/**
- * -----------------------------------------------------
- * POST /api/driver/login
- * -----------------------------------------------------
- * Step 1 of OTP-based authentication
- * - Accepts mobile number
- * - Verifies if driver exists
- * - Generates 6-digit OTP and sets 5-minute expiry
- * - Saves OTP in DB and mocks sending by logging
- */
+// -----------------------------------------------------
+// POST /api/driver/login
+// Step 1 of OTP-based authentication
+// -----------------------------------------------------
 router.post("/login", async (req, res) => {
-  const mobile = (req.body.mobile || "").trim();
+  try {
+    const mobile = (req.body.mobile || "").trim();
 
-  // Validate mobile
-  if (!mobile) {
-    return res.status(400).json({
+    // Validate mobile
+    if (!mobile) {
+      return res.status(400).json({
+        success: false,
+        message: "Mobile number is required",
+      });
+    }
+
+    if (!/^\d{10}$/.test(mobile)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid mobile number format",
+      });
+    }
+
+    // Find driver by mobile
+    const driver = await Driver.findOne({ mobile });
+
+    if (!driver) {
+      return res.status(404).json({
+        success: false,
+        message: "Driver not found",
+      });
+    }
+
+    // Generate 6-digit OTP
+    const otp = crypto.randomInt(100000, 999999).toString();
+    const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 mins from now
+
+    // Save OTP in DB
+    driver.otp = otp;
+    driver.otpExpiresAt = expiresAt;
+    await driver.save();
+
+    // Simulate sending OTP
+    console.log(`[MOCK] OTP for ${mobile}: ${otp}`);
+
+    return res.status(200).json({
+      success: true,
+      message: "OTP sent successfully (mocked)",
+      devOtp: otp, // remove this in production
+    });
+
+  } catch (err) {
+    console.error("Driver login error:", err);
+    return res.status(500).json({
       success: false,
-      message: "Mobile number is required",
+      message: "Internal server error",
     });
   }
-
-  // Load drivers from file
-  const drivers = await readDrivers();
-
-  // Check if driver exists
-  const driver = drivers.find((d) => d.mobile === mobile);
-  if (!driver) {
-    return res.status(404).json({
-      success: false,
-      message: "Driver not found",
-    });
-  }
-
-  // Generate secure 6-digit OTP
-  const otp = crypto.randomInt(100000, 999999).toString();
-  const expiresAt = Date.now() + 5 * 60 * 1000; // 5 mins
-
-  // Store OTP in driver record
-  driver.otp = otp;
-  driver.otpExpiresAt = expiresAt;
-
-  await writeDrivers(drivers);
-
-  // Simulate OTP delivery
-  console.log(`[MOCK] OTP for driver ${mobile}: ${otp}`);
-
-  return res.status(200).json({
-    success: true,
-    message: "OTP sent successfully (mocked)",
-    devOtp: otp // remove in production
-  });
 });
 
 module.exports = router;

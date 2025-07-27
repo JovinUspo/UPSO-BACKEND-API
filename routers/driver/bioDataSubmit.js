@@ -67,7 +67,7 @@ router.post("/bio-data-submit", async (req, res) => {
 
     await newDriver.save();
 
-    console.log("✅ Bio-data saved:", newDriver.id);
+    console.log("Bio-data saved:", newDriver.id);
 
     return res.status(201).json({
       success: true,
@@ -76,7 +76,7 @@ router.post("/bio-data-submit", async (req, res) => {
     });
 
   } catch (err) {
-    console.error("❌ Bio-data save error:", err.stack);
+    console.error("Bio-data save error:", err.stack);
     res.status(500).json({ success: false, message: "Internal server error" });
   }
 });
