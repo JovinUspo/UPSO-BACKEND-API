@@ -1,12 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const path = require("path");
-const fs = require("fs").promises;
-
-const DRIVER_DB = path.join(__dirname, "../../db/driver.json");
-
-const readDrivers = async () =>
-  JSON.parse(await fs.readFile(DRIVER_DB, "utf-8"));
+const Driver = require("../../models/Driver"); // Adjust path if needed
 
 // ==============================================================================
 // GET /api/driver/profile/:driverId
@@ -15,8 +9,8 @@ const readDrivers = async () =>
 router.get("/profile/:driverId", async (req, res) => {
   try {
     const { driverId } = req.params;
-    const drivers = await readDrivers();
-    const driver = drivers.find((d) => d.id === driverId);
+
+    const driver = await Driver.findOne({ id: driverId });
 
     if (!driver) {
       return res.status(404).json({

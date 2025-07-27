@@ -1,14 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const path = require("path");
-const fs = require("fs").promises;
-
-const ORDER_DB = path.join(__dirname, "../../db/orders.json");
-
-// Read/Write helpers
-const readOrders = async () => JSON.parse(await fs.readFile(ORDER_DB, "utf-8"));
-const writeOrders = async (data) =>
-  await fs.writeFile(ORDER_DB, JSON.stringify(data, null, 2));
+const Order = require("../../models/Order");
 
 // ==================================================================
 // POST /api/driver/order/items-collected
@@ -25,30 +17,27 @@ router.post("/order/items-collected", async (req, res) => {
       });
     }
 
-    const orders = await readOrders();
-    const orderIndex = orders.findIndex(
-      (o) => o.orderId === orderId && o.driverId === driverId
-    );
+    const order = await Order.findOne({ driverId, orderId });
 
-    if (orderIndex === -1) {
+    if (!order) {
       return res.status(404).json({
         success: false,
         message: "Order not found for this driver",
       });
     }
 
-    if (orders[orderIndex].status !== "picked") {
+    if (order.status !== "picked") {
       return res.status(400).json({
         success: false,
         message: "Order must be in 'picked' status before item collection",
       });
     }
 
-    orders[orderIndex].status = "items_collected";
-    orders[orderIndex].collectedItems = products;
-    orders[orderIndex].itemsCollectedAt = new Date().toISOString();
+    order.status = "items_collected";
+    order.collectedItems = products;
+    order.itemsCollectedAt = new Date();
 
-    await writeOrders(orders);
+    await order.save();
 
     return res.status(200).json({
       success: true,

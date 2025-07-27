@@ -1,11 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const path = require("path");
-const fs = require("fs").promises;
-
-const ORDER_DB = path.join(__dirname, "../../db/orders.json");
-
-const readOrders = async () => JSON.parse(await fs.readFile(ORDER_DB, "utf-8"));
+const Order = require("../../models/Order");
 
 // ==================================================================
 // GET /api/driver/order/items-to-collect/:orderId
@@ -15,8 +10,7 @@ router.get("/order/items-to-collect/:orderId", async (req, res) => {
   try {
     const { orderId } = req.params;
 
-    const orders = await readOrders();
-    const order = orders.find((o) => o.orderId === orderId);
+    const order = await Order.findOne({ orderId }).select("orderId products");
 
     if (!order) {
       return res.status(404).json({
@@ -29,7 +23,7 @@ router.get("/order/items-to-collect/:orderId", async (req, res) => {
       success: true,
       data: {
         orderId: order.orderId,
-        products: order.products || [],  // assume this key exists in order
+        products: order.products || [],
       },
     });
   } catch (err) {

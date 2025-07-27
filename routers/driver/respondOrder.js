@@ -1,17 +1,7 @@
 const express = require("express");
 const router = express.Router();
-const path = require("path");
-const fs = require("fs").promises;
-
-// Middleware to verify JWT access token
 const authToken = require("../../middleware/authToken");
-
-const ORDER_DB = path.join(__dirname, "../../db/orders.json");
-
-// Utility functions to read/write orders JSON
-const readOrders = async () => JSON.parse(await fs.readFile(ORDER_DB, "utf-8"));
-const writeOrders = async (data) =>
-  await fs.writeFile(ORDER_DB, JSON.stringify(data, null, 2));
+const Order = require("../../models/Order");
 
 /**
  * ============================================================================
@@ -28,7 +18,6 @@ router.post("/order/respond", authToken, async (req, res) => {
     const { driverId, orderId, action } = req.body;
     const VALID_ACTIONS = ["accept", "decline"];
 
-    // Validate required fields and action
     if (!driverId || !orderId || !VALID_ACTIONS.includes(action)) {
       return res.status(400).json({
         success: false,
@@ -36,7 +25,7 @@ router.post("/order/respond", authToken, async (req, res) => {
       });
     }
 
-    // Ensure token matches the driver performing the action
+    // Ensure token driver matches driverId
     if (req.user.id !== driverId) {
       return res.status(403).json({
         success: false,
@@ -44,22 +33,16 @@ router.post("/order/respond", authToken, async (req, res) => {
       });
     }
 
-    const orders = await readOrders();
+    const order = await Order.findOne({ orderId, driverId });
 
-    // Find the order for this driver
-    const orderIndex = orders.findIndex(
-      (order) => order.orderId === orderId && order.driverId === driverId
-    );
-
-    if (orderIndex === -1) {
+    if (!order) {
       return res.status(404).json({
         success: false,
         message: "Order not found for this driver",
       });
     }
 
-    // Ensure the order is still pending
-    if (orders[orderIndex].status !== "pending") {
+    if (order.status !== "pending") {
       return res.status(400).json({
         success: false,
         message: "Order is no longer pending",
@@ -67,18 +50,25 @@ router.post("/order/respond", authToken, async (req, res) => {
     }
 
     // Update order status
-    orders[orderIndex].status = action === "accept" ? "accepted" : "declined";
-    orders[orderIndex].respondedAt = new Date().toISOString();
+    order.status = action === "accept" ? "accepted" : "declined";
+    order.respondedAt = new Date();
 
-    await writeOrders(orders);
+    await order.save();
 
     return res.status(200).json({
       success: true,
       message: `Order ${action}ed successfully`,
-      data: orders[orderIndex],
+      data: {
+        orderId: order.orderId,
+        driverId: order.driverId,
+        status: order.status,
+        distanceKm: order.distanceKm,
+        amount: order.amount,
+        respondedAt: order.respondedAt,
+      },
     });
-  } catch (error) {
-    console.error("Order respond error:", error);
+  } catch (err) {
+    console.error("Order respond error:", err);
     return res.status(500).json({
       success: false,
       message: "Internal server error",

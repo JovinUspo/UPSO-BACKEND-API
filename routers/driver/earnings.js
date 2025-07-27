@@ -1,12 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const path = require("path");
-const fs = require("fs").promises;
-
-const ORDER_DB = path.join(__dirname, "../../db/orders.json");
-
-const readOrders = async () =>
-  JSON.parse(await fs.readFile(ORDER_DB, "utf-8"));
+const Order = require("../../models/Order"); 
 
 // ==============================================================================
 // GET /api/driver/earnings/:driverId
@@ -15,31 +9,31 @@ const readOrders = async () =>
 router.get("/earnings/:driverId", async (req, res) => {
   try {
     const { driverId } = req.params;
-    const orders = await readOrders();
 
-    const completedOrders = orders.filter(
-      (o) => o.driverId === driverId && o.status === "delivered"
-    );
+    const completedOrders = await Order.find({
+      driverId,
+      status: "delivered"
+    }).sort({ deliveredAt: -1 }); // Latest first
 
     const walletAmount = completedOrders.reduce(
-      (total, order) => total + (order.cashToCollect),
+      (total, order) => total + (order.cashToCollect || 0),
       0
     );
 
     const transactions = completedOrders.map((order) => {
-      const deliveredTime = new Date(order.deliveredAt || order.respondedAt || Date.now());
-      const date = deliveredTime.toLocaleDateString("en-GB"); // e.g., 07/02/2021
+      const deliveredTime = new Date(order.deliveredAt || order.respondedAt || order.createdAt);
+      const date = deliveredTime.toLocaleDateString("en-GB"); // DD/MM/YYYY
       const time = deliveredTime.toLocaleTimeString("en-GB", {
         hour: "2-digit",
         minute: "2-digit",
         hour12: true,
-      }); // e.g., 2:00 PM
+      }); // e.g. 02:00 PM
 
       return {
         orderId: order.orderId,
         date,
         time,
-        amount: order.cashToCollect,
+        amount: order.cashToCollect || 0,
       };
     });
 

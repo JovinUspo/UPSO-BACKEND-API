@@ -3,13 +3,13 @@ const router = express.Router();
 const path = require("path");
 const fs = require("fs").promises;
 const multer = require("multer");
+const Driver = require("../../models/Driver");
 
-const DRIVER_DB = path.join(__dirname, "../../db/driver.json");
 const UPLOAD_BASE = path.join(__dirname, "../../../uploads");
 const ALLOWED_FILE_TYPES = ['image/jpeg', 'image/png', 'application/pdf'];
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
-// Create folders if not exist
+// Ensure upload folders exist
 (async () => {
   const folders = ["bankDocs", "residenceDocs", "licenseDocs"];
   try {
@@ -18,11 +18,11 @@ const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
       await fs.mkdir(path.join(UPLOAD_BASE, folder), { recursive: true });
     }
   } catch (err) {
-    console.error("Failed to create upload folders:", err);
+    console.error("Upload folder creation error:", err);
   }
 })();
 
-// Multer Storage
+// Multer configuration
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     let folder;
@@ -52,7 +52,7 @@ const upload = multer({
   limits: { fileSize: MAX_FILE_SIZE },
 });
 
-// POST /bank-details
+// Route: POST /api/driver/bank-details
 router.post(
   "/bank-details",
   upload.fields([
@@ -65,7 +65,7 @@ router.post(
       const { accountName, accountNumber, ifscCode, mobile } = req.body;
       const files = req.files;
 
-      // Validation
+      // Validate text fields
       if (!accountName?.trim() || !accountNumber?.trim() || !ifscCode?.trim() || !mobile?.trim()) {
         return res.status(400).json({
           success: false,
@@ -105,19 +105,18 @@ router.post(
         });
       }
 
-      // Load existing drivers
-      const drivers = await readDrivers();
-      const driverIndex = drivers.findIndex((d) => d.mobile === mobile.trim());
+      // Find driver in DB
+      const driver = await Driver.findOne({ mobile: mobile.trim() });
 
-      if (driverIndex === -1) {
+      if (!driver) {
         return res.status(404).json({
           success: false,
           message: "Driver with this mobile number not found",
         });
       }
 
-      // Update the driver's bankDetails
-      drivers[driverIndex].bankDetails = {
+      // Update bank details
+      driver.bankDetails = {
         accountName: accountName.trim(),
         accountNumber: accountNumber.trim(),
         ifscCode: ifscCode.trim(),
@@ -126,17 +125,17 @@ router.post(
           residence: `/uploads/residenceDocs/${files.residenceProof[0].filename}`,
           license: `/uploads/licenseDocs/${files.drivingLicense[0].filename}`,
         },
-        submittedAt: new Date().toISOString(),
+        submittedAt: new Date(),
       };
 
-      await writeDrivers(drivers);
+      await driver.save();
 
       return res.status(201).json({
         success: true,
         message: "Bank details added to driver successfully",
         data: {
-          driverId: drivers[driverIndex].id,
-          bankDetails: drivers[driverIndex].bankDetails,
+          driverId: driver.id,
+          bankDetails: driver.bankDetails,
         },
       });
     } catch (err) {
@@ -155,28 +154,5 @@ router.post(
     }
   }
 );
-
-// Helper functions
-const readDrivers = async () => {
-  try {
-    const data = await fs.readFile(DRIVER_DB, "utf-8");
-    return JSON.parse(data);
-  } catch (err) {
-    if (err.code === "ENOENT") {
-      await fs.writeFile(DRIVER_DB, "[]");
-      return [];
-    }
-    throw err;
-  }
-};
-
-const writeDrivers = async (data) => {
-  try {
-    await fs.writeFile(DRIVER_DB, JSON.stringify(data, null, 2));
-  } catch (err) {
-    console.error("Failed to write to driver.json:", err);
-    throw err;
-  }
-};
 
 module.exports = router;

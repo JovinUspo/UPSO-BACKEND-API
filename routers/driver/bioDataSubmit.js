@@ -1,10 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const { v4: uuidv4 } = require("uuid");
-const path = require("path");
-const fs = require("fs").promises;
-
-const DRIVER_DB = path.join(__dirname, "../../db/driver.json");
+const Driver = require("../../models/Driver");
 
 // ------------------------
 // @route   POST /bio-data-submit
@@ -20,7 +17,7 @@ router.post("/bio-data-submit", async (req, res) => {
       apartment,
       street,
       landmark,
-      pincode
+      pincode,
     } = req.body;
 
     // Validate input
@@ -41,15 +38,14 @@ router.post("/bio-data-submit", async (req, res) => {
       return res.status(400).json({ success: false, message: "Invalid date of birth" });
     }
 
-    const drivers = await readDriverData();
-
-    // Check for existing mobile
-    const userExists = drivers.some(driver => driver.mobile === trimmedMobile);
-    if (userExists) {
+    // Check if driver with this mobile already exists
+    const existingDriver = await Driver.findOne({ mobile: trimmedMobile });
+    if (existingDriver) {
       return res.status(409).json({ success: false, message: "Driver with this mobile already exists" });
     }
 
-    const newDriver = {
+    // Create new driver document
+    const newDriver = new Driver({
       id: uuidv4(),
       name: name.trim(),
       dob: dob.trim(),
@@ -59,20 +55,16 @@ router.post("/bio-data-submit", async (req, res) => {
         apartment: apartment.trim(),
         street: street.trim(),
         landmark: landmark.trim(),
-        pincode: pincode.trim()
+        pincode: pincode.trim(),
       },
-      submittedAt: new Date().toISOString(),
-      // You can add a placeholder for bankDetails, initially null
-      bankDetails: null
-    };
+    });
 
-    drivers.push(newDriver);
-    await writeDriverData(drivers);
+    await newDriver.save();
 
     return res.status(201).json({
       success: true,
       message: "Bio-data saved successfully",
-      data: { driverId: newDriver.id }
+      data: { driverId: newDriver.id },
     });
 
   } catch (err) {
@@ -80,30 +72,5 @@ router.post("/bio-data-submit", async (req, res) => {
     res.status(500).json({ success: false, message: "Internal server error" });
   }
 });
-
-// ------------------------
-// Helper functions
-// ------------------------
-const readDriverData = async () => {
-  try {
-    const data = await fs.readFile(DRIVER_DB, "utf8");
-    return JSON.parse(data);
-  } catch (err) {
-    if (err.code === "ENOENT") {
-      await fs.writeFile(DRIVER_DB, "[]");
-      return [];
-    }
-    throw err;
-  }
-};
-
-const writeDriverData = async (data) => {
-  try {
-    await fs.writeFile(DRIVER_DB, JSON.stringify(data, null, 2));
-  } catch (err) {
-    console.error("Failed to write to driver.json:", err);
-    throw err;
-  }
-};
 
 module.exports = router;

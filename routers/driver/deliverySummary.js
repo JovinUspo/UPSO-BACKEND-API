@@ -1,18 +1,15 @@
 const express = require("express");
 const router = express.Router();
-const path = require("path");
-const fs = require("fs").promises;
+const Order = require("../../models/Order");
 
-const ORDER_DB = path.join(__dirname, "../../db/orders.json");
-
-const readOrders = async () => JSON.parse(await fs.readFile(ORDER_DB, "utf-8"));
-
-// GET delivery summary
+// ----------------------------------------------------------------------
+// GET /api/driver/order/delivery-summary/:orderId
+// Returns order summary including address and cash to collect
+// ----------------------------------------------------------------------
 router.get("/order/delivery-summary/:orderId", async (req, res) => {
   try {
     const { orderId } = req.params;
-    const orders = await readOrders();
-    const order = orders.find(o => o.orderId === orderId);
+    const order = await Order.findOne({ orderId });
 
     if (!order) {
       return res.status(404).json({ success: false, message: "Order not found" });
@@ -24,8 +21,8 @@ router.get("/order/delivery-summary/:orderId", async (req, res) => {
         orderId: order.orderId,
         deliveryName: order.customerName,
         deliveryAddress: order.deliveryAddress,
-        paymentMode: order.paymentMode,
-        cashToCollect: order.cashToCollect,
+        paymentMode: order.paymentMode || "Cash",
+        cashToCollect: order.cashToCollect || 0,
       }
     });
   } catch (err) {
@@ -35,7 +32,10 @@ router.get("/order/delivery-summary/:orderId", async (req, res) => {
 });
 
 
-// Update delivery status
+// ----------------------------------------------------------------------
+// POST /api/driver/order/delivery-status
+// Updates the final delivery status (delivered or not_delivered)
+// ----------------------------------------------------------------------
 router.post("/order/delivery-status", async (req, res) => {
   try {
     const { driverId, orderId, status } = req.body;
@@ -44,17 +44,15 @@ router.post("/order/delivery-status", async (req, res) => {
       return res.status(400).json({ success: false, message: "Invalid input" });
     }
 
-    const orders = await readOrders();
-    const index = orders.findIndex(o => o.orderId === orderId && o.driverId === driverId);
+    const order = await Order.findOne({ orderId, driverId });
 
-    if (index === -1) {
+    if (!order) {
       return res.status(404).json({ success: false, message: "Order not found for driver" });
     }
 
-    orders[index].status = status;
-    orders[index].deliveredAt = new Date().toISOString();
-
-    await fs.writeFile(ORDER_DB, JSON.stringify(orders, null, 2));
+    order.status = status;
+    order.deliveredAt = new Date();
+    await order.save();
 
     return res.status(200).json({
       success: true,
