@@ -35,12 +35,10 @@ const writeUsers = async (data) =>
 // ------------------------
 // @desc   Sanitize incoming input
 // ------------------------
-const sanitizeInput = ({ mobile, dob, email, gender, password }) => ({
+const sanitizeInput = ({ username, mobile, email}) => ({
+  username: (username || "").trim(),
   mobile: (mobile || "").trim(),
-  dob: (dob || "").trim(),
   email: (email || "").trim().toLowerCase(),
-  gender: (gender || "").trim().toLowerCase(),
-  password: (password || "").trim(),
 });
 
 // ------------------------
@@ -50,9 +48,9 @@ const sanitizeInput = ({ mobile, dob, email, gender, password }) => ({
 // ------------------------
 router.post("/signup", async (req, res) => {
   try {
-    const { mobile, dob, email, gender, password } = sanitizeInput(req.body);
+    const { username,mobile, email } = sanitizeInput(req.body);
 
-    if (!mobile || !dob || !email || !gender || !password) {
+    if (!username || !mobile || !email) {
       return res.status(400).json({
         success: false,
         message: "All fields are required",
@@ -68,15 +66,12 @@ router.post("/signup", async (req, res) => {
       });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = {
       id: uuidv4(),
+      username,
       mobile,
-      dob,
       email,
-      gender,
-      password: hashedPassword,
       createdAt: new Date().toISOString(),
     };
 
