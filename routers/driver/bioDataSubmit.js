@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const { v4: uuidv4 } = require("uuid");
-const Driver = require("../../models/Driver");
+const Driver = require("../../models/Driver"); // ensure case-sensitive match!
 
 // ------------------------
 // @route   POST /bio-data-submit
@@ -9,6 +9,9 @@ const Driver = require("../../models/Driver");
 // ------------------------
 router.post("/bio-data-submit", async (req, res) => {
   try {
+    console.log("🚀 Bio-data submission started");
+    console.log("📦 Request body:", req.body);
+
     const {
       name,
       dob,
@@ -26,22 +29,19 @@ router.post("/bio-data-submit", async (req, res) => {
     }
 
     const trimmedMobile = mobile.trim();
+    const trimmedPincode = pincode.trim();
+    const trimmedDOB = dob.trim();
+
     if (!/^\d{10}$/.test(trimmedMobile)) {
       return res.status(400).json({ success: false, message: "Mobile number must be 10 digits" });
     }
 
-    if (!/^\d{6}$/.test(pincode.trim())) {
+    if (!/^\d{6}$/.test(trimmedPincode)) {
       return res.status(400).json({ success: false, message: "Pincode must be 6 digits" });
     }
 
-    const parsedDOB = new Date(dob.trim());
-    if (isNaN(parsedDOB.getTime())) {
+    if (isNaN(new Date(trimmedDOB).getTime())) {
       return res.status(400).json({ success: false, message: "Invalid date of birth" });
-    }
-
-    const lowerGender = gender.trim().toLowerCase();
-    if (!["male", "female", "other"].includes(lowerGender)) {
-      return res.status(400).json({ success: false, message: "Invalid gender" });
     }
 
     // Check if driver with this mobile already exists
@@ -54,18 +54,20 @@ router.post("/bio-data-submit", async (req, res) => {
     const newDriver = new Driver({
       id: uuidv4(),
       name: name.trim(),
-      dob: parsedDOB,
+      dob: trimmedDOB,
       mobile: trimmedMobile,
-      gender: lowerGender,
+      gender: gender.trim(),
       address: {
         apartment: apartment.trim(),
         street: street.trim(),
         landmark: landmark.trim(),
-        pincode: pincode.trim(),
+        pincode: trimmedPincode,
       },
     });
 
     await newDriver.save();
+
+    console.log("✅ Bio-data saved:", newDriver.id);
 
     return res.status(201).json({
       success: true,
@@ -74,7 +76,7 @@ router.post("/bio-data-submit", async (req, res) => {
     });
 
   } catch (err) {
-    console.error("Bio-data save error:", err.stack || err);
+    console.error("❌ Bio-data save error:", err.stack);
     res.status(500).json({ success: false, message: "Internal server error" });
   }
 });
