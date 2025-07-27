@@ -2,26 +2,22 @@ options:
   logging: CLOUD_LOGGING_ONLY
 
 steps:
-  # Step 1: Build Docker image
   - name: 'gcr.io/cloud-builders/docker'
     args: ['build', '-t', 'gcr.io/$PROJECT_ID/upso-driver-api', '.']
 
-  # Step 2: Push Docker image
   - name: 'gcr.io/cloud-builders/docker'
     args: ['push', 'gcr.io/$PROJECT_ID/upso-driver-api']
 
-  # Step 3: Deploy to Cloud Run
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: gcloud
     args:
-      - run
-      - deploy
-      - upso-driver-api
-      - --image=gcr.io/$PROJECT_ID/upso-driver-api
-      - --region=asia-south1
-      - --platform=managed
-      - --allow-unauthenticated
-      - --port=8080
+      [
+        'run', 'deploy', 'upso-driver-api',
+        '--image', 'gcr.io/$PROJECT_ID/upso-driver-api',
+        '--region', 'asia-south1',
+        '--platform', 'managed',
+        '--allow-unauthenticated'
+      ]
 
 images:
   - 'gcr.io/$PROJECT_ID/upso-driver-api'
