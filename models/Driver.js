@@ -8,7 +8,7 @@ const bankDetailsSchema = new mongoose.Schema({
   documents: {
     bank: String,       
     residence: String, 
-    license: String,    
+    license: String,    // /uploads/licenseDocs/filename.png
   },
   submittedAt: Date,
 }, { _id: false });
