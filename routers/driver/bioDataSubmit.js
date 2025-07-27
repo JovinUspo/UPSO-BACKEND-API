@@ -34,8 +34,14 @@ router.post("/bio-data-submit", async (req, res) => {
       return res.status(400).json({ success: false, message: "Pincode must be 6 digits" });
     }
 
-    if (isNaN(new Date(dob.trim()).getTime())) {
+    const parsedDOB = new Date(dob.trim());
+    if (isNaN(parsedDOB.getTime())) {
       return res.status(400).json({ success: false, message: "Invalid date of birth" });
+    }
+
+    const lowerGender = gender.trim().toLowerCase();
+    if (!["male", "female", "other"].includes(lowerGender)) {
+      return res.status(400).json({ success: false, message: "Invalid gender" });
     }
 
     // Check if driver with this mobile already exists
@@ -48,9 +54,9 @@ router.post("/bio-data-submit", async (req, res) => {
     const newDriver = new Driver({
       id: uuidv4(),
       name: name.trim(),
-      dob: dob.trim(),
+      dob: parsedDOB,
       mobile: trimmedMobile,
-      gender: gender.trim(),
+      gender: lowerGender,
       address: {
         apartment: apartment.trim(),
         street: street.trim(),
@@ -68,7 +74,7 @@ router.post("/bio-data-submit", async (req, res) => {
     });
 
   } catch (err) {
-    console.error("Bio-data save error:", err);
+    console.error("Bio-data save error:", err.stack || err);
     res.status(500).json({ success: false, message: "Internal server error" });
   }
 });
