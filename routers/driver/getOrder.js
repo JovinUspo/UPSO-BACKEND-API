@@ -14,7 +14,7 @@ router.get("/order/pending/:driverId", authToken, async (req, res) => {
     const newOrder = await Order.findOne({
       driverId,
       status: "pending",
-    }).select("orderId distanceKm amount - id");
+    }).select("orderId distanceKm amount -_id");
 
     if (!newOrder) {
       return res.status(404).json({
@@ -26,7 +26,11 @@ router.get("/order/pending/:driverId", authToken, async (req, res) => {
     return res.status(200).json({
       success: true,
       message: "New order found",
-      data: newOrder,
+      data: {
+        orderId: newOrder.orderId,
+        distanceKm: newOrder.distanceKm,
+        amount: newOrder.amount,
+      },
     });
   } catch (err) {
     console.error("Pending order fetch error:", err);
