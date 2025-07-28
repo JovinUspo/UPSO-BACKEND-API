@@ -4,15 +4,14 @@ const authToken = require("../../middleware/authToken");
 const Order = require("../../models/Order");
 
 // ===========================================================================
-// GET /api/driver/order/pending/:driverId
+// GET /api/driver/order/pending/
 // Returns a pending (new) order assigned to the driver
 // ===========================================================================
-router.get("/order/pending/:driverId", authToken, async (req, res) => {
+router.get("/order/pending/", authToken, async (req, res) => {
   try {
-    const { driverId } = req.params;
+    const driverId = req.id;
 
     const newOrder = await Order.findOne({
-      driverId,
       status: "pending",
     }).select("orderId distanceKm amount -_id");
 

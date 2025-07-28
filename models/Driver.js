@@ -32,7 +32,6 @@ const addressSchema = new mongoose.Schema({
 
 // Main Driver Schema
 const driverSchema = new mongoose.Schema({
-  id: { type: String, required: true, unique: true },
   name: { type: String, required: true },
   dob: { type: Date, required: true }, // changed to Date
   mobile: { type: String, required: true, unique: true, index: true },
@@ -42,8 +41,6 @@ const driverSchema = new mongoose.Schema({
     trim: true,
     match: [/^\S+@\S+\.\S+$/, "Invalid email format"]
   },
-  password: String,
-
   gender: {
     type: String,
     enum: ["male", "female", "other"],
@@ -51,7 +48,8 @@ const driverSchema = new mongoose.Schema({
   },
   address: addressSchema,
   bankDetails: { type: bankDetailsSchema, default: null },
-
+  kycStatus: Boolean,
+  activeStatus: String,
   otp: String,
   otpExpiresAt: Date,
   refreshTokens: [String],

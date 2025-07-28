@@ -5,7 +5,7 @@ const fs = require("fs").promises;
 const multer = require("multer");
 const Driver = require("../../models/Driver");
 
-const UPLOAD_BASE = path.join(__dirname, "../../../uploads");
+const UPLOAD_BASE = path.join(__filename, "../../../uploads");
 const ALLOWED_FILE_TYPES = ['image/jpeg', 'image/png', 'application/pdf'];
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
@@ -34,7 +34,8 @@ const storage = multer.diskStorage({
   },
   filename: (req, file, cb) => {
     const ext = path.extname(file.originalname).toLowerCase();
-    const uniqueName = `${file.fieldname}-${Date.now()}${ext}`;
+    const accountName = (req.body?.accountName || "unknown").replace(/[^a-zA-Z0-9_-]/g, "_");
+    const uniqueName = `${accountName}_${file.fieldname}-${Date.now()}${ext}`;
     cb(null, uniqueName);
   },
 });
@@ -52,10 +53,8 @@ const upload = multer({
   limits: { fileSize: MAX_FILE_SIZE },
 });
 
-// Route: POST /api/driver/bank-details
-router.post(
-  "/bank-details",
-  upload.fields([
+// Route: POST /api/driver/id-proof
+router.post("/id-proof",upload.fields([
     { name: "bankDocument", maxCount: 1 },
     { name: "residenceProof", maxCount: 1 },
     { name: "drivingLicense", maxCount: 1 },
@@ -64,7 +63,7 @@ router.post(
     try {
       const { accountName, accountNumber, ifscCode, mobile } = req.body;
       const files = req.files;
-
+      console.log(UPLOAD_BASE)
       // Validate text fields
       if (!accountName?.trim() || !accountNumber?.trim() || !ifscCode?.trim() || !mobile?.trim()) {
         return res.status(400).json({
@@ -132,14 +131,14 @@ router.post(
 
       return res.status(201).json({
         success: true,
-        message: "Bank details added to driver successfully",
+        message: "ID Proof added to driver successfully",
         data: {
-          driverId: driver.id,
+          driverId: driver._id,
           bankDetails: driver.bankDetails,
         },
       });
     } catch (err) {
-      console.error("Bank details upload error:", err);
+      console.error("ID Proof upload error:", err);
       if (err instanceof multer.MulterError) {
         return res.status(400).json({
           success: false,

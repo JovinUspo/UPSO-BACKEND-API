@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken");
+const BlacklistedToken = require("../models/BlacklistedToken");
 
-module.exports = function authToken(req, res, next) {
+module.exports = async function authToken(req, res, next) {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
@@ -13,13 +14,23 @@ module.exports = function authToken(req, res, next) {
   const token = authHeader.split(" ")[1];
 
   try {
+    // Check if token is blacklisted
+    const isBlacklisted = await BlacklistedToken.findOne({ token });
+    if (isBlacklisted) {
+      return res.status(401).json({
+        success: false,
+        message: "Access token has been invalidated",
+      });
+    }
+
+    // Verify token
     const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-    req.user = decoded;
+    req.user = decoded; // { id: <driverId> }
     next();
   } catch (err) {
     return res.status(403).json({
       success: false,
-      message: "Forbidden: Invalid token",
+      message: "Forbidden: Invalid or expired token",
     });
   }
 };

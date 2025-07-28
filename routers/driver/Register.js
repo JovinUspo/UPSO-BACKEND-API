@@ -7,10 +7,8 @@ const Driver = require("../../models/Driver"); // ensure case-sensitive match!
 // @route   POST /bio-data-submit
 // @desc    Submit driver bio-data
 // ------------------------
-router.post("/bio-data-submit", async (req, res) => {
+router.post("/register", async (req, res) => {
   try {
-    console.log("🚀 Bio-data submission started");
-    console.log("📦 Request body:", req.body);
 
     const {
       name,
@@ -52,7 +50,6 @@ router.post("/bio-data-submit", async (req, res) => {
 
     // Create new driver document
     const newDriver = new Driver({
-      id: uuidv4(),
       name: name.trim(),
       dob: trimmedDOB,
       mobile: trimmedMobile,
@@ -63,6 +60,8 @@ router.post("/bio-data-submit", async (req, res) => {
         landmark: landmark.trim(),
         pincode: trimmedPincode,
       },
+      activeStatus:"inactive",
+      kycStatus:false
     });
 
     await newDriver.save();
@@ -72,7 +71,7 @@ router.post("/bio-data-submit", async (req, res) => {
     return res.status(201).json({
       success: true,
       message: "Bio-data saved successfully",
-      data: { driverId: newDriver.id },
+      data: { driverId: newDriver._id },
     });
 
   } catch (err) {

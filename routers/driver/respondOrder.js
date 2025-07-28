@@ -24,7 +24,7 @@ router.post("/order/respond", authToken, async (req, res) => {
         message: "driverId, orderId and valid action ('accept' or 'decline') are required",
       });
     }
-
+    console.log(req)
     // Ensure token driver matches driverId
     if (req.user.id !== driverId) {
       return res.status(403).json({

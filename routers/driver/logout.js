@@ -1,41 +1,49 @@
 const express = require("express");
 const router = express.Router();
-const path = require("path");
-const fs = require("fs").promises;
 
-const DRIVERS_FILE = path.join(__dirname, "../../db/driver.json");
-
-const readDrivers = async () =>
-  JSON.parse(await fs.readFile(DRIVERS_FILE, "utf8"));
-
-const writeDrivers = async (data) =>
-  await fs.writeFile(DRIVERS_FILE, JSON.stringify(data, null, 2));
+// ----------------------------------------------------------------------
+// POST /api/driver/logout
+// Removes the refresh token from the driver's stored refreshTokens array
+// ----------------------------------------------------------------------
+const jwt = require("jsonwebtoken");
+const Driver = require("../../models/Driver");
+const BlacklistedToken = require("../../models/BlacklistedToken");
 
 router.post("/logout", async (req, res) => {
-  const { refreshToken } = req.body;
+  const { refreshToken, accessToken } = req.body;
 
-  if (!refreshToken) {
+  if (!refreshToken || !accessToken) {
     return res.status(400).json({
       success: false,
-      message: "Refresh token is required",
+      message: "Both access and refresh tokens are required",
     });
   }
 
-  const drivers = await readDrivers();
-  const index = drivers.findIndex((u) => u.refreshTokens?.includes(refreshToken));
+  try {
+    // Remove refreshToken from DB
+    const driver = await Driver.findOne({ refreshTokens: refreshToken });
+    if (driver) {
+      driver.refreshTokens = driver.refreshTokens.filter(t => t !== refreshToken);
+      driver.activeStatus = "inactive"
+      await driver.save();
+    }
 
-  if (index !== -1) {
-    drivers[index].refreshTokens = drivers[index].refreshTokens.filter(
-      (t) => t !== refreshToken
-    );
-    await writeDrivers(drivers);
+    // Decode access token to get expiry time
+    const decoded = jwt.decode(accessToken);
+    const expiresAt = new Date(decoded.exp * 1000);
+
+    // Save access token to blacklist
+    await BlacklistedToken.create({ token: accessToken, expiresAt });
+
+    return res.status(200).json({
+      success: true,
+      message: "Logged out successfully",
+    });
+  } catch (err) {
+    console.error("Logout error:", err);
+    return res.status(500).json({ success: false, message: "Server error" });
   }
-
-  return res.status(200).json({
-    success: true,
-    message: "Logged out successfully",
-    ...(index === -1 ? { note: "No active session found for provided token" } : {}),
-  });
 });
+
 
 module.exports = router;

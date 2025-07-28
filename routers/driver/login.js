@@ -36,6 +36,13 @@ router.post("/login", async (req, res) => {
       });
     }
 
+    if (driver.bankDetails === null){
+      return res.status(403).json({message:"KYC Details not completed"})
+    }
+
+    if (driver.kycStatus === false){
+      return res.status(403).json({message:"KYC Status Pending"})
+    }
     // Generate 6-digit OTP
     const otp = crypto.randomInt(100000, 999999).toString();
     const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 mins from now
@@ -44,9 +51,6 @@ router.post("/login", async (req, res) => {
     driver.otp = otp;
     driver.otpExpiresAt = expiresAt;
     await driver.save();
-
-    // Simulate sending OTP
-    console.log(`[MOCK] OTP for ${mobile}: ${otp}`);
 
     return res.status(200).json({
       success: true,
