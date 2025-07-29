@@ -1,7 +1,6 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const path = require("path");
 const connectDB = require("./db");
 
 const app = express();
@@ -16,10 +15,10 @@ app.use(express.json());
 // app.use('/api', locationFilter);
 
 // Route groups
-app.use('/api/user', require('./routers/user'));
-app.use('/api/vendor', require('./routers/vendor'));
-app.use('/api/driver', require('./routers/driver'));
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.use('/api/v1/user', require('./routers/user'));
+app.use('/api/v1/vendor', require('./routers/vendor'));
+app.use('/api/v1/driver', require('./routers/driver'));
+
 // Health check
 app.get('/', (req, res) => res.json({ status: 'API running' }));
 

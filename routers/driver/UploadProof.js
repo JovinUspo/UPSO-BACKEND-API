@@ -54,7 +54,7 @@ const upload = multer({
 });
 
 // Route: POST /api/driver/id-proof
-router.post("/id-proof",upload.fields([
+router.post("/upload-proof",upload.fields([
     { name: "bankDocument", maxCount: 1 },
     { name: "residenceProof", maxCount: 1 },
     { name: "drivingLicense", maxCount: 1 },
@@ -133,8 +133,7 @@ router.post("/id-proof",upload.fields([
         success: true,
         message: "ID Proof added to driver successfully",
         data: {
-          driverId: driver._id,
-          bankDetails: driver.bankDetails,
+          driverId: driver._id
         },
       });
     } catch (err) {
