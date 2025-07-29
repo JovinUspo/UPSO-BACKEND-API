@@ -1,12 +1,12 @@
 const express = require("express");
 const router = express.Router();
 const Order = require("../../models/Order");
-
+const authToken = require("../../middleware/authToken");
 // ==================================================================
 // POST /api/driver/order/items-collected
 // Body: { driverId, orderId, products: [string] }
 // ==================================================================
-router.post("/order/items-collected", async (req, res) => {
+router.post("/order/items-collected",authToken, async (req, res) => {
   try {
     const { driverId, orderId, products } = req.body;
 

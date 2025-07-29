@@ -3,16 +3,14 @@ const mongoose = require("mongoose");
 const productSchema = new mongoose.Schema({
   name: { type: String, required: true },
   quantity: { type: Number, required: true },
-  unit: { type: String, required: true }
 }, { _id: false });
 
 const orderSchema = new mongoose.Schema({
-  orderId: { type: String, required: true, unique: true, index: true },
-  driverId: { type: String, required: true, index: true },
+  driverId: { type: String, index: true },
 
   // Pickup info
-  shopName: String,
-  shopAddress: String,
+  pickupShopName: String,
+  pickupLocation: String,
   pickupLatitude: Number,
   pickupLongitude: Number,
   pickupReachedAt: Date,
@@ -35,7 +33,7 @@ const orderSchema = new mongoose.Schema({
   status: {
     type: String,
     enum: [
-      "pending", "accepted", "picked", "items_collected",
+      "pending", "accepted","declined", "pickup_reached", "items_collected",
       "reached", "delivered", "not_delivered", "completed", "cancelled"
     ],
     default: "pending",
@@ -53,9 +51,9 @@ const orderSchema = new mongoose.Schema({
   proofOfDelivery: String,
 
   // Payment
-  paymentMode: { type: String, default: "Cash" },
-  cashToCollect: { type: Number, default: 0 },
-  isPaidToDriver: { type: Boolean, default: false },
+  paymentMode: String,
+  cashToCollect: Number,
+  isPaidToDriver: Boolean,
 
   // Meta
   distanceKm: Number,

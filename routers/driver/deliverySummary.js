@@ -1,15 +1,15 @@
 const express = require("express");
 const router = express.Router();
 const Order = require("../../models/Order");
-
+const authToken = require("../../middleware/authToken");
 // ----------------------------------------------------------------------
 // GET /api/driver/order/delivery-summary/:orderId
 // Returns order summary including address and cash to collect
 // ----------------------------------------------------------------------
-router.get("/order/delivery-summary/:orderId", async (req, res) => {
+router.get("/order/delivery-summary/:orderId",authToken, async (req, res) => {
   try {
     const { orderId } = req.params;
-    const order = await Order.findOne({ orderId });
+    const order = await Order.findById(orderId);
 
     if (!order) {
       return res.status(404).json({ success: false, message: "Order not found" });
@@ -22,7 +22,7 @@ router.get("/order/delivery-summary/:orderId", async (req, res) => {
         deliveryName: order.customerName,
         deliveryAddress: order.deliveryAddress,
         paymentMode: order.paymentMode || "Cash",
-        cashToCollect: order.cashToCollect || 0,
+        cashToCollect: order.amount || 0,
       }
     });
   } catch (err) {

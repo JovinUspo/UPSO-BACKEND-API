@@ -1,16 +1,16 @@
 const express = require("express");
 const router = express.Router();
 const Order = require("../../models/Order");
-
+const authToken = require("../../middleware/authToken");
 // ==================================================================
 // GET /api/driver/order/items-to-collect/:orderId
 // Returns list of products to collect for a given order
 // ==================================================================
-router.get("/order/items-to-collect/:orderId", async (req, res) => {
+router.get("/order/items-to-collect/:orderId",authToken, async (req, res) => {
   try {
     const { orderId } = req.params;
 
-    const order = await Order.findOne({ orderId }).select("orderId products");
+    const order = await Order.findById(orderId).select("products");
 
     if (!order) {
       return res.status(404).json({

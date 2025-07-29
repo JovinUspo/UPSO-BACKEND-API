@@ -33,7 +33,7 @@ const addressSchema = new mongoose.Schema({
 // Main Driver Schema
 const driverSchema = new mongoose.Schema({
   name: { type: String, required: true },
-  dob: { type: Date, required: true }, // changed to Date
+  dob: { type: Date, required: true },
   mobile: { type: String, required: true, unique: true, index: true },
   email: {
     type: String,

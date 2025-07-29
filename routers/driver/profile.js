@@ -1,14 +1,14 @@
 const express = require("express");
 const router = express.Router();
 const Driver = require("../../models/Driver"); // Adjust path if needed
-
+const authToken = require("../../middleware/authToken");
 // ==============================================================================
 // GET /api/driver/profile/:driverId
 // Returns the driver's profile information
 // ==============================================================================
-router.get("/profile/:driverId", async (req, res) => {
+router.get("/profile",authToken, async (req, res) => {
   try {
-    const { driverId } = req.params;
+    const { driverId } = req;
 
     const driver = await Driver.findOne({ id: driverId });
 
@@ -20,7 +20,7 @@ router.get("/profile/:driverId", async (req, res) => {
     }
 
     const {
-      userName,
+      name,
       gender,
       mobile,
       dob,
@@ -30,13 +30,16 @@ router.get("/profile/:driverId", async (req, res) => {
       address,
     } = driver;
 
+    const date = new Date(dob);
+    const formatted = date.toISOString().split('T')[0];
+
     return res.status(200).json({
       success: true,
       data: {
-        userName,
+        name,
         gender,
         mobile,
-        dob,
+        formatted,
         drivingLicenseNo,
         accountNo,
         ifscCode,

@@ -1,12 +1,13 @@
 const express = require("express");
 const router = express.Router();
 const Order = require("../../models/Order");
+const authToken = require("../../middleware/authToken");
 
 // GET /api/driver/order/delivery-info/:orderId
-router.get("/order/delivery-info/:orderId", async (req, res) => {
+router.get("/order/delivery-info/:orderId",authToken, async (req, res) => {
   const { orderId } = req.params;
   try {
-    const order = await Order.findOne({ orderId });
+    const order = await Order.findById(orderId);
 
     if (!order) {
       return res.status(404).json({ success: false, message: "Order not found" });
@@ -15,7 +16,7 @@ router.get("/order/delivery-info/:orderId", async (req, res) => {
     return res.status(200).json({
       success: true,
       data: {
-        orderId: order.orderId,
+        orderId: order.id,
         customerName: order.customerName,
         customerPhoneNo: order.customerPhoneNo,
         address: order.deliveryAddress,

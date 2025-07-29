@@ -25,7 +25,7 @@ router.get("/dashboard", authToken, async (req, res) => {
 
     // Fetch completed orders for the driver
     const completedOrders = await Order.find({
-      status: "completed",
+      status: "delivered",
     }).select("distanceKm amount id");
     
     const newOrders = await Order.find({

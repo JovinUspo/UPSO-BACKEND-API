@@ -1,14 +1,14 @@
 const express = require("express");
 const router = express.Router();
 const Order = require("../../models/Order"); 
-
+const authToken = require("../../middleware/authToken");
 // ==============================================================================
 // GET /api/driver/earnings/:driverId
 // Returns wallet total and delivered order transactions for the driver
 // ==============================================================================
-router.get("/earnings/:driverId", async (req, res) => {
+router.get("/earnings",authToken, async (req, res) => {
   try {
-    const { driverId } = req.params;
+    const { driverId } = req;
 
     const completedOrders = await Order.find({
       driverId,
@@ -16,7 +16,7 @@ router.get("/earnings/:driverId", async (req, res) => {
     }).sort({ deliveredAt: -1 }); // Latest first
 
     const walletAmount = completedOrders.reduce(
-      (total, order) => total + (order.cashToCollect || 0),
+      (total, order) => total + (order.amount || 0),
       0
     );
 
@@ -30,10 +30,10 @@ router.get("/earnings/:driverId", async (req, res) => {
       }); // e.g. 02:00 PM
 
       return {
-        orderId: order.orderId,
+        orderId: order.id,
         date,
         time,
-        amount: order.cashToCollect || 0,
+        amount: order.amount || 0,
       };
     });
 

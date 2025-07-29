@@ -1,16 +1,16 @@
 const express = require("express");
 const router = express.Router();
 const Order = require("../../models/Order");
-
+const authToken = require("../../middleware/authToken");
 /**
  * =============================================================================
  * GET /api/driver/order/pickup/:driverId
  * - Returns pickup order details (shop name, location) for the assigned driver.
  * =============================================================================
  */
-router.get("/order/pickup/:driverId", async (req, res) => {
+router.get("/order/pickup",authToken, async (req, res) => {
   try {
-    const { driverId } = req.params;
+    const driverId = req.driverId;
 
     const activeOrder = await Order.findOne({
       driverId,
@@ -27,15 +27,13 @@ router.get("/order/pickup/:driverId", async (req, res) => {
     return res.status(200).json({
       success: true,
       data: {
-        orderId: activeOrder.orderId,
-        shopName: activeOrder.shopName || "Test Shop",
-        shopAddress: activeOrder.shopAddress || "123, Market Street, City",
+        orderId: activeOrder.id,
+        shopName: activeOrder.pickupShopName || "Test Shop",
+        shopAddress: activeOrder.pickupLocation || "123, Market Street, City",
         pickupLocation: {
           latitude: activeOrder.pickupLatitude || 0,
           longitude: activeOrder.pickupLongitude || 0,
-        },
-        amount: activeOrder.amount,
-        distanceKm: activeOrder.distanceKm,
+        }
       },
     });
   } catch (err) {

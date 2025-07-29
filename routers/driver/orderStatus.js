@@ -5,23 +5,24 @@ const Order = require("../../models/Order");
 
 /**
  * ============================================================================
- * POST /api/driver/order/respond
- * Accept or decline a new order
+ * POST /api/driver/order/status
  *
  * @headers Authorization: Bearer <accessToken>
  * @body { driverId, orderId, action }
- *        action must be either "accept" or "decline"
+ *        action must be either "pickup_reached" or "items_collected" or
+      "reached" or "delivered" or "not_delivered" or "completed" or "cancelled"
  * ============================================================================
  */
-router.post("/order/respond", authToken, async (req, res) => {
+router.post("/order/status", authToken, async (req, res) => {
   try {
     const { orderId, action } = req.body;
-    const VALID_ACTIONS = ["accept", "decline"];
+    const VALID_ACTIONS = ["pickup_reached", "items_collected",
+      "reached", "delivered", "not_delivered", "completed", "cancelled"];
 
     if (!orderId || !VALID_ACTIONS.includes(action)) {
       return res.status(400).json({
         success: false,
-        message: "orderId and valid action ('accept' or 'decline') are required",
+        message: "orderId and valid action ( pickup_reached, items_collected, reached, delivered, not_delivered, completed ) are required",
       });
     }
 
@@ -31,15 +32,9 @@ router.post("/order/respond", authToken, async (req, res) => {
       return res.status(404).json({success:false,message:"order not found"})
     }
 
-    if (order.status !== "pending") {
-      return res.status(400).json({
-        success: false,
-        message: "Order is no available",
-      });
-    }
 
     // Update order status
-    order.status = action === "accept" ? "accepted" : "declined";
+    order.status = action.trim();
     order.respondedAt = new Date();
     order.driverId = req.driverId;
     await order.save();
@@ -51,9 +46,6 @@ router.post("/order/respond", authToken, async (req, res) => {
         orderId: order.orderId,
         driverId: order.driverId,
         status: order.status,
-        distanceKm: order.distanceKm,
-        amount: order.amount,
-        respondedAt: order.respondedAt,
       },
     });
   } catch (err) {
